@@ -34,7 +34,7 @@ GO_BUILD=$(STATIC_FLAGS) go build -trimpath -ldflags=$(LDFLAGS)
 BINARY?=bin/docker
 BINARY_WITH_EXTENSION=$(BINARY)$(EXTENSION)
 
-COMPOSE_BINARY?=bin/docker-compose
+COMPOSE_BINARY?=bin/docker-composeV2
 COMPOSE_BINARY_WITH_EXTENSION=$(COMPOSE_BINARY)$(EXTENSION)
 
 WORK_DIR:=$(shell mktemp -d)
@@ -49,18 +49,18 @@ TAR_TRANSFORM:=--transform s/packaging/docker/ --transform s/bin/docker/ \
 				--transform s/docker-linux-amd64/docker/ --transform s/docker-linux-arm64/docker/ \
 				--transform s/docker-linux-armv6/docker/ --transform s/docker-linux-armv7/docker/ \
 				--transform s/docker-darwin-amd64/docker/ --transform s/docker-darwin-arm64/docker/ \
-				--transform s/docker-compose-linux-amd64/docker-compose/ --transform s/docker-compose-linux-arm64/docker-compose/ \
-				--transform s/docker-compose-linux-armv6/docker-compose/ --transform s/docker-compose-linux-armv7/docker-compose/ \
-				--transform s/docker-compose-darwin-amd64/docker-compose/ --transform s/docker-compose-darwin-arm64/docker-compose/
+				--transform s/docker-composeV2-linux-amd64/docker-composeV2/ --transform s/docker-composeV2-linux-arm64/docker-composeV2/ \
+				--transform s/docker-composeV2-linux-armv6/docker-composeV2/ --transform s/docker-composeV2-linux-armv7/docker-composeV2/ \
+				--transform s/docker-composeV2-darwin-amd64/docker-composeV2/ --transform s/docker-composeV2-darwin-arm64/docker-composeV2/
 
 ifneq ($(findstring bsd,$(shell tar --version)),)
   TAR_TRANSFORM=-s /packaging/docker/ -s /bin/docker/ \
   				-s /docker-linux-amd64/docker/  -s /docker-linux-arm64/docker/ \
   				-s /docker-linux-armv6/docker/  -s /docker-linux-armv7/docker/ \
 				-s /docker-darwin-amd64/docker/	 -s /docker-darwin-arm64/docker/ \
-  				-s /docker-compose-linux-amd64/docker-compose/  -s /docker-compose-linux-arm64/docker-compose/ \
-  				-s /docker-compose-linux-armv6/docker-compose/  -s /docker-compose-linux-armv7/docker-compose/ \
-				-s /docker-compose-darwin-amd64/docker-compose/	 -s /docker-compose-darwin-arm64/docker-compose/
+  				-s /docker-composeV2-linux-amd64/docker-composeV2/  -s /docker-composeV2-linux-arm64/docker-composeV2/ \
+  				-s /docker-composeV2-linux-armv6/docker-composeV2/  -s /docker-composeV2-linux-armv7/docker-composeV2/ \
+				-s /docker-composeV2-darwin-amd64/docker-composeV2/	 -s /docker-composeV2-darwin-arm64/docker-composeV2/
 endif
 
 all: cli
@@ -127,8 +127,8 @@ package: cross
 	tar -czf dist/docker-darwin-amd64.tar.gz $(TAR_TRANSFORM) packaging/LICENSE $(BINARY)-darwin-amd64 $(COMPOSE_BINARY)-darwin-amd64
 	tar -czf dist/docker-darwin-arm64.tar.gz $(TAR_TRANSFORM) packaging/LICENSE $(BINARY)-darwin-arm64 $(COMPOSE_BINARY)-darwin-arm64
 	cp $(BINARY)-windows-amd64.exe $(WORK_DIR)/docker.exe
-	cp $(COMPOSE_BINARY)-windows-amd64.exe $(WORK_DIR)/docker-compose.exe
-	rm -f dist/docker-windows-amd64.zip && zip dist/docker-windows-amd64.zip -j packaging/LICENSE $(WORK_DIR)/docker.exe $(WORK_DIR)/docker-compose.exe
+	cp $(COMPOSE_BINARY)-windows-amd64.exe $(WORK_DIR)/docker-composeV2.exe
+	rm -f dist/docker-windows-amd64.zip && zip dist/docker-windows-amd64.zip -j packaging/LICENSE $(WORK_DIR)/docker.exe $(WORK_DIR)/docker-composeV2.exe
 	rm -r $(WORK_DIR)
 
 .PHONY: yamldocs
