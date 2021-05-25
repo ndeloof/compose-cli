@@ -60,15 +60,10 @@ func (s *composeService) attach(ctx context.Context, project *types.Project, lis
 
 	// Watch events to capture container restart and re-attach
 	go func() {
-		crashed := map[string]struct{}{}
 		s.Events(ctx, project.Name, compose.EventsOptions{ // nolint: errcheck
 			Services: selectedServices,
 			Consumer: func(event compose.Event) error {
-				if event.Status == "die" {
-					crashed[event.Container] = struct{}{}
-					return nil
-				}
-				if _, ok := crashed[event.Container]; ok {
+				if event.Status == "start" {
 					inspect, err := s.apiClient.ContainerInspect(ctx, event.Container)
 					if err != nil {
 						return err
@@ -86,9 +81,10 @@ func (s *composeService) attach(ctx context.Context, project *types.Project, lis
 
 					// Just ignore errors when reattaching to already crashed containers
 					s.attachContainer(ctx, container, listener, project) // nolint: errcheck
-					delete(crashed, event.Container)
 
-					s.waitContainer(container, listener)
+					go func() {
+						s.waitContainer(container, listener)
+					}()
 				}
 				return nil
 			},
